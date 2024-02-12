@@ -1,0 +1,237 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta http-equiv="X-UA-Compatible" content="ie=edge" />
+
+    <title>CSS Grid Image Gallery!</title>
+  </head>
+
+  <body>
+    <div class="overlay">
+      <div class="overlay-inner">
+        <button class="close">× Close</button>
+        <img />
+      </div>
+    </div>
+
+    <section class="gallery"></section>
+
+    <style>
+      * {
+        box-sizing: border-box;
+      }
+
+      body {
+        padding: 50px;
+        font-family: sans-serif;
+        background: linear-gradient(to right, #f93d66, #6d47d9);
+      }
+      @media screen and (max-width: 700px) {
+        body {
+          padding: 10px;
+        }
+      }
+
+      h1,
+      h2,
+      h3,
+      h4,
+      h5,
+      h6 {
+        margin: 0 0 5px 0;
+      }
+
+      p {
+        margin: 0 0 20px 0;
+      }
+
+      .close {
+        background: none;
+        color: black;
+        border: 0;
+      }
+
+      .gallery {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, 100px);
+        grid-auto-rows: 100px;
+        grid-auto-flow: dense;
+      }
+
+      .item {
+        overflow: hidden;
+        display: grid;
+        grid-template-columns: 1;
+        grid-template-rows: 1;
+      }
+      .item img {
+        grid-column: 1/-1;
+        grid-row: 1/-1;
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+      }
+
+      .item__overlay {
+        background: #ffc60032;
+        grid-column: 1/-1;
+        grid-row: 1/-1;
+        position: relative;
+        display: grid;
+        justify-items: center;
+        align-items: center;
+
+        transform: translateY(105%);
+
+        transition: transform linear 0.1s;
+      }
+      .item:hover .item__overlay {
+        transform: translateY(0%);
+      }
+      .item__overlay button {
+        background: rgba(0, 0, 0, 0.5);
+        border: 1px solid white;
+        color: #fff;
+        text-transform: uppercase;
+        padding: 5px;
+      }
+
+      .item.v2 {
+        grid-row: span 2;
+      }
+      .item.v3 {
+        grid-row: span 3;
+      }
+      .item.v4 {
+        grid-row: span 4;
+      }
+      .item.h2 {
+        grid-column: span 2;
+      }
+      .item.h3 {
+        grid-column: span 3;
+      }
+      .item.h4 {
+        grid-column: span 4;
+      }
+
+      .overlay {
+        position: fixed;
+        background: rgba(0, 0, 0, 0.7);
+        top: 0;
+        right: 0;
+        bottom: 0;
+        left: 0;
+        display: none;
+        z-index: 2;
+      }
+
+      .overlay-inner {
+        display: grid;
+        /* grid-template-columns: repeat(1, minmax(1fr, 100fr)); */
+
+        background: white;
+        padding: 5px 20px 20px 20px;
+      }
+      @media screen and (max-width: 700px) {
+        .overlay-inner {
+          padding: 5px 10px 10px 10px;
+        }
+      }
+
+      .overlay.open {
+        display: grid;
+        align-items: center;
+        justify-items: center;
+      }
+
+      .overlay img {
+        max-width: 90vw;
+        max-height: 80vh;
+      }
+    </style>
+
+    <script>
+      const overlay = document.querySelector(".overlay");
+      const closeBtn = document.querySelector(".close");
+      const gallery = document.querySelector(".gallery");
+      const overlayImg = document.querySelector("img");
+
+      function randomNum(limit) {
+        return Math.floor(Math.random() * limit) + 1;
+      }
+
+      function openOverlay(e) {
+        let src;
+
+        if (e.target.className == "item__overlay") {
+          src = e.target.previousElementSibling.src;
+          overlayImg.src = src;
+          overlay.classList.add("open");
+          document.body.style.overflow = "hidden";
+          window.addEventListener("keydown", onKeyDown);
+        }
+
+        if (e.target.tagName === "BUTTON") {
+          src =
+            e.target.offsetParent.attributes[0].ownerElement
+              .previousElementSibling.src;
+          overlayImg.src = src;
+          overlay.classList.add("open");
+          document.body.style.overflow = "hidden";
+          window.addEventListener("keydown", onKeyDown);
+        }
+      }
+
+      function closeOverlay(e) {
+        overlay.classList.remove("open");
+        document.body.style.overflow = "auto";
+        window.removeEventListener("keydown", onKeyDown);
+      }
+
+      function onKeyDown(e) {
+        if (e.key === "Escape") {
+          console.log(e);
+          closeOverlay();
+        }
+      }
+
+      function generateHTML([h, v]) {
+        return `<div class="item h${h} v${v}">
+          
+                 <img src="./images/${randomNum(
+                   41 /*number of images*/
+                 )}.jpg" alt="gallery image" />
+                 <div class="item__overlay">
+                  <button>View -></button>
+                 </div>
+                </div>`;
+      }
+
+      const imgSizes = Array.from({ length: 50 }, () => [
+        randomNum(4),
+        randomNum(4),
+      ]).concat([
+        [1, 1],
+        [1, 1],
+        [1, 1],
+        [1, 1],
+        [1, 1],
+        [1, 1],
+        [1, 1],
+        [1, 1],
+        [1, 1],
+        [1, 1],
+        [1, 1],
+      ]);
+
+      const galleryHtml = imgSizes.map(generateHTML).join("");
+      gallery.innerHTML = galleryHtml;
+      gallery.addEventListener("click", openOverlay);
+      closeBtn.addEventListener("click", closeOverlay);
+      overlay.addEventListener("keydown", onKeyDown);
+    </script>
+  </body>
+</html>
